@@ -8,12 +8,15 @@ import { fileURLToPath } from 'url'
  * criar uma classe específica para cada entidade que queremos persistir
  * e evitar o uso de new Database(Parent) no entrypoint
  */
-export abstract class Database<S extends SerializableStatic, I extends Serializable = InstanceType<S>> {
+export abstract class Database<
+  Static extends SerializableStatic,
+  Instance extends Serializable = InstanceType<Static>
+> {
   protected readonly dbPath: string
-  protected dbData: Map<string, I> = new Map()
-  readonly dbEntity: S
+  protected dbData: Map<string, Instance> = new Map()
+  readonly dbEntity: Static
 
-  constructor(entity: S) {
+  constructor(entity: Static) {
     this.dbPath = resolve(dirname(fileURLToPath(import.meta.url)), `.data/${entity.name.toLowerCase()}.json`)
     this.dbEntity = entity
     this.#initialize()
@@ -43,7 +46,7 @@ export abstract class Database<S extends SerializableStatic, I extends Serializa
     return this.dbData.get(id)
   }
 
-  listBy<P extends keyof I>(property: P, value: I[P]) {
+  listBy<Property extends keyof Instance>(property: Property, value: Instance[Property]) {
     const allData = this.list()
     return allData.filter((data) => {
       let comparable = data[property] as unknown
@@ -59,7 +62,7 @@ export abstract class Database<S extends SerializableStatic, I extends Serializa
     })
   }
 
-  list(): I[] {
+  list(): Instance[] {
     return [...this.dbData.values()]
   }
 
@@ -68,7 +71,7 @@ export abstract class Database<S extends SerializableStatic, I extends Serializa
     return this.#updateFile()
   }
 
-  save(entity: I) {
+  save(entity: Instance) {
     this.dbData.set(entity.id, entity)
     return this.#updateFile()
   }

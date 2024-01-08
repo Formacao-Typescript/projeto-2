@@ -1,6 +1,5 @@
 import { Database } from '../data/Db.js'
 import { ConflictError } from '../domain/Errors/Conflict.js'
-import { DomainError } from '../domain/Errors/DomainError.js'
 import { Student, StudentCreationType, StudentUpdateType } from '../domain/Student.js'
 import { Service } from './BaseService.js'
 import { ParentService } from './ParentService.js'
@@ -10,7 +9,7 @@ export class StudentService extends Service<typeof Student> {
     super(repository)
   }
 
-  update(id: string, newData: StudentUpdateType): Student {
+  update(id: string, newData: StudentUpdateType) {
     const entity = this.findById(id)
     const updated = new Student({
       ...entity.toObject(),
@@ -20,7 +19,7 @@ export class StudentService extends Service<typeof Student> {
     return updated
   }
 
-  create(creationData: StudentCreationType): Student {
+  create(creationData: StudentCreationType) {
     const existing = this.repository.listBy('document', creationData.document)
     if (existing.length > 0) {
       throw new ConflictError(creationData.document, Student)
@@ -40,19 +39,8 @@ export class StudentService extends Service<typeof Student> {
     const student = this.findById(id)
     parentsToUpdate.forEach((parentId) => this.parentService.findById(parentId))
 
-    const newParents = parentsToUpdate.filter((parentId) => !student.parents.includes(parentId))
-    this.#assertAtLeastOneParentLeft(newParents)
-    student.parents = [...student.parents, ...newParents]
+    student.parents = parentsToUpdate
     this.repository.save(student)
     return student
-  }
-
-  #assertAtLeastOneParentLeft(parentArray: unknown[]): asserts parentArray is [string, ...string[]] {
-    if (parentArray.length === 0) {
-      throw new DomainError('Cannot remove all parents from a student', Student, {
-        code: 'EMPTY_DEPENDENCY',
-        status: 403
-      })
-    }
   }
 }

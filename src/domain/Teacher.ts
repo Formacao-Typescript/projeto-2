@@ -34,16 +34,16 @@ export class Teacher implements Serializable {
   readonly id: string
 
   constructor(data: TeacherCreationType) {
-    const parsedData = TeacherCreationSchema.parse(data)
-    this.firstName = parsedData.firstName
-    this.surname = parsedData.surname
-    this.phone = parsedData.phone
-    this.email = parsedData.email
-    this.document = parsedData.document
-    this.salary = parsedData.salary
-    this.hiringDate = new Date(parsedData.hiringDate)
-    this.major = parsedData.major
-    this.id = parsedData.id ?? randomUUID()
+    const parsed = TeacherCreationSchema.parse(data)
+    this.firstName = parsed.firstName
+    this.surname = parsed.surname
+    this.phone = parsed.phone
+    this.email = parsed.email
+    this.document = parsed.document
+    this.salary = parsed.salary
+    this.hiringDate = new Date(parsed.hiringDate)
+    this.major = parsed.major
+    this.id = parsed.id ?? randomUUID()
   }
 
   static fromObject(data: Record<string, unknown>) {

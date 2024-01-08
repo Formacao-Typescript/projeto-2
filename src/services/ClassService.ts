@@ -2,8 +2,7 @@ import { Database } from '../data/Db.js'
 import { Class, ClassCreationType } from '../domain/Class.js'
 import { ConflictError } from '../domain/Errors/Conflict.js'
 import { DependencyConflictError } from '../domain/Errors/DependencyConflict.js'
-import { MissingDependencyError } from '../domain/Errors/DependencyNotFound.js'
-import { NotFoundError } from '../domain/Errors/NotFound.js'
+import { MissingDependencyError } from '../domain/Errors/MissingDependency.js'
 import { Student } from '../domain/Student.js'
 import { Teacher } from '../domain/Teacher.js'
 import { Service } from './BaseService.js'
@@ -18,16 +17,16 @@ export class ClassService extends Service<typeof Class> {
   ) {
     super(repository)
   }
-  update(id: string, newData: Partial<Omit<ClassCreationType, 'id'>>): Class {
-    const entity = this.findById(id)
-    if (newData.teacher) {
-      try {
-        this.teacherService.findById(newData.teacher)
-      } catch (err) {
-        throw new NotFoundError(newData.teacher, Teacher)
-      }
-    }
 
+  #assertTeacherExists(teacherId?: string | null) {
+    if (teacherId) {
+      this.teacherService.findById(teacherId)
+    }
+  }
+
+  update(id: string, newData: Partial<Omit<ClassCreationType, 'id'>>) {
+    const entity = this.findById(id)
+    this.#assertTeacherExists(newData.teacher)
     const updated = new Class({
       ...entity.toObject(),
       ...newData
@@ -36,19 +35,11 @@ export class ClassService extends Service<typeof Class> {
     return updated
   }
 
-  create(creationData: ClassCreationType): Class {
+  create(creationData: ClassCreationType) {
     const existing = this.repository.listBy('code', creationData.code)
-    if (existing.length > 0) {
-      throw new ConflictError(creationData.code, Class)
-    }
+    if (existing.length > 0) throw new ConflictError(creationData.code, Class)
 
-    if (creationData.teacher) {
-      try {
-        this.teacherService.findById(creationData.teacher)
-      } catch (err) {
-        throw new NotFoundError(creationData.teacher, Teacher)
-      }
-    }
+    this.#assertTeacherExists(creationData.teacher)
 
     const entity = new Class(creationData)
     this.repository.save(entity)

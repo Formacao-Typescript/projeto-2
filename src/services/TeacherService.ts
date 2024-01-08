@@ -3,7 +3,7 @@ import { Teacher, TeacherCreationType } from '../domain/Teacher.js'
 import { Service } from './BaseService.js'
 
 export class TeacherService extends Service<typeof Teacher> {
-  update(id: string, newData: Partial<Omit<TeacherCreationType, 'id'>>): Teacher {
+  update(id: string, newData: Partial<Omit<TeacherCreationType, 'id'>>) {
     const entity = this.findById(id)
     const updated = new Teacher({
       ...entity.toObject(),
@@ -13,7 +13,7 @@ export class TeacherService extends Service<typeof Teacher> {
     return updated
   }
 
-  create(creationData: TeacherCreationType): Teacher {
+  create(creationData: TeacherCreationType) {
     const existing = this.repository.listBy('document', creationData.document)
     if (existing.length > 0) {
       throw new ConflictError(creationData.document, Teacher)

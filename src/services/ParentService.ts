@@ -1,9 +1,9 @@
 import { ConflictError } from '../domain/Errors/Conflict.js'
-import { Parent, ParentCreationType } from '../domain/Parent.js'
+import { Parent, ParentCreationType, ParentUpdateType } from '../domain/Parent.js'
 import { Service } from './BaseService.js'
 
 export class ParentService extends Service<typeof Parent> {
-  update(id: string, newData: Partial<Omit<ParentCreationType, 'id'>>): Parent {
+  update(id: string, newData: ParentUpdateType) {
     const entity = this.findById(id)
     const updated = new Parent({
       ...entity.toObject(),
@@ -13,7 +13,7 @@ export class ParentService extends Service<typeof Parent> {
     return updated
   }
 
-  create(creationData: ParentCreationType): Parent {
+  create(creationData: ParentCreationType) {
     const existing = this.repository.listBy('document', creationData.document)
     if (existing.length > 0) {
       throw new ConflictError(creationData.document, Parent)
