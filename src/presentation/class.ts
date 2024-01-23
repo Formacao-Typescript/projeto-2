@@ -1,11 +1,8 @@
 import { Request, Router } from 'express'
-import { z } from 'zod'
-import { ClassCreationType, ClassCreationSchema, ClassUpdateType, ClassUpdateSchema } from '../domain/Class.js'
+import { ClassCreationSchema, ClassCreationType, ClassUpdateSchema, ClassUpdateType } from '../domain/Class.js'
 import { ClassService } from '../services/ClassService.js'
 import zodValidationMiddleware from './middlewares/zodValidationMiddleware.js'
 
-const teacherPatchSchema = z.object({ teacherId: z.string().uuid() })
-type TeacherPatchType = z.infer<typeof teacherPatchSchema>
 
 export function classRouterFactory(classService: ClassService) {
   const router = Router()

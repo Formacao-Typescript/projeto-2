@@ -8,10 +8,7 @@ import { fileURLToPath } from 'url'
  * criar uma classe específica para cada entidade que queremos persistir
  * e evitar o uso de new Database(Parent) no entrypoint
  */
-export abstract class Database<
-  Static extends SerializableStatic,
-  Instance extends Serializable = InstanceType<Static>
-> {
+export abstract class Database<Static extends SerializableStatic, Instance extends Serializable = InstanceType<Static>> {
   protected readonly dbPath: string
   protected dbData: Map<string, Instance> = new Map()
   readonly dbEntity: Static
@@ -62,7 +59,7 @@ export abstract class Database<
     })
   }
 
-  list(): Instance[] {
+  list() {
     return [...this.dbData.values()]
   }
 

@@ -19,7 +19,7 @@ export function studentRouterFactory(studentService: StudentService) {
     }
   })
 
-  router.get('/', async (req, res) => {
+  router.get('/', async (_, res) => {
     return res.json(studentService.list().map((student) => student.toObject()))
   })
 
